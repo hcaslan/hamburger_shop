@@ -1,1 +1,3 @@
 rootProject.name = 'hamburger_shop'
+include 'AuthService'
+

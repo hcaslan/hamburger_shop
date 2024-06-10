@@ -1,36 +1,63 @@
+//ROOT build.gradle dosyası: Tüm projelerde geçerli olan ayarlar burada yapılır.
+
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.0'
-    id 'io.spring.dependency-management' version '1.1.5'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'application'
+    id 'java-library'
 }
 
-group = 'org.example'
-version = '0.0.1-SNAPSHOT'
+//allprojects: kök dizin ve onun altındaki dizinler
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'application'
+    apply plugin: 'java-library'
+    apply from: "${rootDir}/dependencies.gradle"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+}
+
+//subprojects: kök dizin altındaki dizinler
+subprojects {
+    group = 'com.kerem'
+    version = 'v0.0.1'
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+
+    buildscript {
+        dependencies {
+            classpath("org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}")
+        }
     }
 }
 
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation libs.springBootWeb
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
+        implementation libs.openapi
+        implementation libs.mapstruct
+        annotationProcessor libs.mapstructProcessor
+        implementation libs.jwt
+    }
+
+    buildscript {
+        repositories {
+            mavenCentral()
+        }
+    }
+
+}
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }
