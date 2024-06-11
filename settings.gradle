@@ -1,5 +1,6 @@
 rootProject.name = 'hamburger_shop'
 include 'AuthService'
-include 'EmailService'
 include 'ConfigServer'
+include 'EmailService'
+include 'ProfileService'
 

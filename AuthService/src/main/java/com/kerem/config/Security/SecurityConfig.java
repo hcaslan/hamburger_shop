@@ -3,6 +3,8 @@ package com.kerem.config.Security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,8 +29,13 @@ public class SecurityConfig {
                         authorize -> authorize
                                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
                                 .requestMatchers(AUTH+REGISTER+"/**", AUTH+ACTIVATEACCOUNT, AUTH+LOGIN+"/**").permitAll()
-                                .requestMatchers(AUTH+FINDALL).hasAuthority("USER")
-                                .requestMatchers(AUTH+DELETE).hasAuthority("ADMIN")
+                                .requestMatchers(AUTH+GETRESETPASWORDCODE).hasAuthority("USER")
+                                .requestMatchers(AUTH+RESETPASSWORD,
+                                        AUTH+CHANGEPASSWORD,
+                                        AUTH+DELETEMYACCOUNT).hasAuthority("USER")
+                                .requestMatchers(AUTH+DELETE,
+                                        AUTH+FINDALL,
+                                        AUTH+FINDBYID).hasAuthority("ADMIN")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable());
@@ -36,3 +43,4 @@ public class SecurityConfig {
     }
 
 }
+

@@ -23,6 +23,10 @@ public class RabbitMQConfig {
     Queue updateStatusQueue() {
         return new Queue("updateStatus.Queue");
     }
+    @Bean
+    Queue createProfileQueue() {
+        return new Queue("createProfile.Queue");
+    }
 
     @Bean
     DirectExchange exchange() {
@@ -43,6 +47,13 @@ public class RabbitMQConfig {
                 .bind(updateStatusQueue)
                 .to(exchange)
                 .with("updateStatus.Route");
+    }
+    @Bean
+    Binding createProfileBinding(Queue createProfileQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(createProfileQueue)
+                .to(exchange)
+                .with("createProfile.Route");
     }
 
     @Bean

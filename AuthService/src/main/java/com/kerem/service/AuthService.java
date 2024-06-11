@@ -9,6 +9,7 @@ import com.kerem.exceptions.AuthMicroServiceException;
 import com.kerem.exceptions.ErrorType;
 import com.kerem.mapper.AuthMapper;
 import com.kerem.model.EmailModel;
+import com.kerem.model.StatusUpdateModel;
 import com.kerem.repository.AuthRepository;
 import com.kerem.repository.TokenRepository;
 import com.kerem.utility.CodeGenerator;
@@ -57,6 +58,7 @@ public class AuthService implements UserDetailsService {
                 .build();
 
         sendEmail(emailModel);
+        rabbitTemplate.convertAndSend("exchange.direct","createProfile.Route",auth.getId());
 
         System.out.println("Activation code: " + token.getCode());
     }
@@ -71,6 +73,10 @@ public class AuthService implements UserDetailsService {
 
         Auth auth = authRepository.findById(token.getAuthId()).orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
         auth.setStatus(EStatus.ACTIVE);
+
+        StatusUpdateModel statusUpdateModel = StatusUpdateModel.builder().authId(auth.getId()).status(EStatus.ACTIVE).build();
+
+        rabbitTemplate.convertAndSend("exchange.direct","updateStatus.Route",statusUpdateModel);
         authRepository.save(auth);
     }
 
@@ -139,7 +145,9 @@ public class AuthService implements UserDetailsService {
             auth.setStatus(EStatus.DELETED);
             authRepository.save(auth);
             try {
-                rabbitTemplate.convertAndSend("updateStatus.Queue", id, EStatus.DELETED);
+                StatusUpdateModel statusUpdateModel = StatusUpdateModel.builder().authId(auth.getId()).status(EStatus.DELETED).build();
+
+                rabbitTemplate.convertAndSend("exchange.direct","updateStatus.Route",statusUpdateModel);
             } catch (Exception e){
                 throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
             }
@@ -158,7 +166,9 @@ public class AuthService implements UserDetailsService {
             auth.setStatus(EStatus.DELETED);
             authRepository.save(auth);
             try {
-                rabbitTemplate.convertAndSend("updateStatus.Queue", auth.getId(), EStatus.DELETED);
+                StatusUpdateModel statusUpdateModel = StatusUpdateModel.builder().authId(auth.getId()).status(EStatus.DELETED).build();
+
+                rabbitTemplate.convertAndSend("exchange.direct","updateStatus.Route",statusUpdateModel);
             } catch (Exception e){
                 throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
             }

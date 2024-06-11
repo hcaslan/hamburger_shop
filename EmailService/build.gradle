@@ -3,4 +3,5 @@ dependencies {
     implementation libs.validator
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation libs.springBootMail
+    implementation libs.springCloudClient
 }
