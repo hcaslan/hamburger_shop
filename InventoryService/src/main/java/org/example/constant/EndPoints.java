@@ -11,6 +11,12 @@ public class EndPoints {
 
     //entityler:
     public static final String INGREDIENT = "/ingredient";
+    public static final String INVENTORY = "/inventory";
+    public static final String SAUCE = "/sauce";
+    public static final String SNACK = "/snack";
+    public static final String DESSERT = "/dessert";
+    public static final String DRINK = "/drink";
+    public static final String HAMBURGER = "/hamburger";
 
     //Methods:
     public static final String SAVE = "/save";

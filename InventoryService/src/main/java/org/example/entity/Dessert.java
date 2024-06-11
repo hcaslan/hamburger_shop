@@ -11,8 +11,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Document(collection = "sauces")
-public class Sauce {
+@Document(collection = "dessert")
+public class Dessert {
     @MongoId
     private String id;
     private String name;
