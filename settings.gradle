@@ -3,4 +3,5 @@ include 'AuthService'
 include 'ConfigServer'
 include 'EmailService'
 include 'ProfileService'
+include 'InventoryService'
 

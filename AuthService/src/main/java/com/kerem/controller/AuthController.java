@@ -26,7 +26,6 @@ import static com.kerem.constant.EndPoints.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final JwtTokenManager jwtTokenManager;
 
     @PostMapping(REGISTER)
     public ResponseEntity<String> register(@Valid @RequestBody AuthRegisterRequestDto dto, BindingResult bindingResult){
@@ -59,8 +58,8 @@ public class AuthController {
     @PutMapping(RESETPASSWORD)
     @PreAuthorize("hasRole('USER')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<String> resetPassword(@RequestParam String newPassword, @RequestParam String resetPasswordCode, @RequestParam String rePassword){
-        authService.resetPassword(newPassword, rePassword, resetPasswordCode);
+    public ResponseEntity<String> resetPassword(@RequestParam String resetPasswordCode, @RequestParam String newPassword, @RequestParam String rePassword){
+        authService.resetPassword(resetPasswordCode,newPassword, rePassword);
         return ResponseEntity.ok("Password reset successfully");
     }
 
