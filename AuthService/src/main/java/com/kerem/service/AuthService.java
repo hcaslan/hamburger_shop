@@ -15,6 +15,7 @@ import com.kerem.utility.CodeGenerator;
 import com.kerem.utility.JwtTokenManager;
 import com.kerem.utility.MailUtility;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,6 +33,7 @@ public class AuthService implements UserDetailsService {
     private final JwtTokenManager jwtTokenManager;
     private final MailUtility mailUtility;
     private final AuthMapper authMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     public Auth findById(String id) {
         return authRepository.findById(id).orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
@@ -53,7 +55,8 @@ public class AuthService implements UserDetailsService {
                 .subject("Activation Code")
                 .text(mailUtility.activationEmail(dto.getName(), token.getCode()))
                 .build();
-        // TODO: Send email
+
+        sendEmail(emailModel);
 
         System.out.println("Activation code: " + token.getCode());
     }
@@ -92,8 +95,7 @@ public class AuthService implements UserDetailsService {
                 .text(mailUtility.passwordChangeEmail(auth.getName(), token.getCode()))
                 .build();
 
-
-        // TODO: Send email
+        sendEmail(emailModel);
 
         System.out.println("Reset password code: " + token.getCode());
     }
@@ -137,7 +139,7 @@ public class AuthService implements UserDetailsService {
             auth.setStatus(EStatus.DELETED);
             authRepository.save(auth);
             try {
-                // TODO: updateWithRabbit(id);
+                rabbitTemplate.convertAndSend("updateStatus.Queue", id, EStatus.DELETED);
             } catch (Exception e){
                 throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
             }
@@ -156,7 +158,7 @@ public class AuthService implements UserDetailsService {
             auth.setStatus(EStatus.DELETED);
             authRepository.save(auth);
             try {
-                // TODO: updateWithRabbit(id);
+                rabbitTemplate.convertAndSend("updateStatus.Queue", auth.getId(), EStatus.DELETED);
             } catch (Exception e){
                 throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
             }
@@ -186,6 +188,9 @@ public class AuthService implements UserDetailsService {
     }
 
 
+    public void sendEmail(EmailModel emailModel) {
+        rabbitTemplate.convertAndSend("getMail.Queue", emailModel);
+    }
 
 
 
