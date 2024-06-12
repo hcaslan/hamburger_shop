@@ -1,34 +1,59 @@
 package org.example.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.CartItem;
 import org.example.entity.ShoppingCart;
 import org.example.service.ShoppingCartService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static org.example.constant.EndPoints.*;
+
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping(ROOT+CART)
 @RequiredArgsConstructor
 public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
 
-    @GetMapping("/{userId}")
-    public ShoppingCart getCart(@PathVariable String userId) {
-        return shoppingCartService.getCartByUserId(userId);
-    }
-
-    @PostMapping("/{userId}/add")
-    public ShoppingCart addItemToCart(@PathVariable String userId, @RequestBody CartItem item) {
+    @PostMapping(ADDITEMTOCART)
+    @PreAuthorize("hasRole('USER')")
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public ShoppingCart addItemToCart(@RequestParam String userId, @RequestBody CartItem item) {
         return shoppingCartService.addItemToCart(userId, item);
     }
 
-    @DeleteMapping("/{userId}/remove/{productId}")
-    public ShoppingCart removeItemFromCart(@PathVariable String userId, @PathVariable String productId) {
+
+
+
+
+
+
+
+
+
+
+
+
+    @GetMapping(GETCARTBYUSERID)
+    @PreAuthorize("hasRole('USER')")
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public ShoppingCart getCart(@RequestParam String userId) {
+        return shoppingCartService.getCartByUserId(userId);
+    }
+
+    @DeleteMapping(REMOVEITEMFROMCART)
+    @PreAuthorize("hasRole('USER')")
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public ShoppingCart removeItemFromCart(@RequestParam String userId, @RequestParam String productId) {
         return shoppingCartService.removeItemFromCart(userId, productId);
     }
 
-    @PostMapping("/{userId}/clear")
-    public ShoppingCart clearCart(@PathVariable String userId) {
+    @PostMapping(CLEARCART)
+    @PreAuthorize("hasRole('USER')")
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public ShoppingCart clearCart(@RequestParam String userId) {
         return shoppingCartService.clearCart(userId);
     }
 }

@@ -4,4 +4,5 @@ include 'ConfigServer'
 include 'EmailService'
 include 'ProfileService'
 include 'InventoryService'
+include 'ShoppingService'
 

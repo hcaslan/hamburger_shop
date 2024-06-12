@@ -21,5 +21,9 @@ public class EndPoints {
     public static final String DELETE = "/delete";
     public static final String FINDALL = "/findall";
     public static final String FINDBYID = "/findbyid";
+    public static final String GETCARTBYUSERID = "/getcartbyuserid";
+    public static final String ADDITEMTOCART = "/additemtocart";
+    public static final String REMOVEITEMFROMCART = "/removeitemfromcart";
+    public static final String CLEARCART = "/clearcart";
 
 }

@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,24 +29,21 @@ import java.util.Collections;
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${authservice.secret.secret-key}")
     String secretKey;
-    private final JwtTokenManager jwtTokenManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            System.out.println(token);
             try {
                 DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secretKey))
                         .build()
                         .verify(token);
-                String role = jwt.getClaim("role").asString();
-                System.out.println(role);
+                String role = "ROLE_" + jwt.getClaim("role").asString();
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singletonList(authority));
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                System.out.println(authority);
             } catch (Exception e) {
                 throw new AuthMicroServiceException(ErrorType.INVALID_TOKEN);
             }
