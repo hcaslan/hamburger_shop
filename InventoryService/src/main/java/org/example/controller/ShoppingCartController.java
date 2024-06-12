@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.entity.CartItem;
 import org.example.entity.ShoppingCart;
 import org.example.service.ShoppingCartService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,18 +24,6 @@ public class ShoppingCartController {
     public ShoppingCart addItemToCart(@RequestParam String userId, @RequestBody CartItem item) {
         return shoppingCartService.addItemToCart(userId, item);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     @GetMapping(GETCARTBYUSERID)
     @PreAuthorize("hasRole('USER')")
@@ -56,4 +45,5 @@ public class ShoppingCartController {
     public ShoppingCart clearCart(@RequestParam String userId) {
         return shoppingCartService.clearCart(userId);
     }
+
 }

@@ -1,45 +1,46 @@
 package org.example.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.model.ShoppingCart;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.example.entity.Receipt;
+import org.example.entity.ShoppingCart;
+import org.example.repository.ReceiptRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ShoppingService {
     private final RabbitTemplate rabbitTemplate;
-    private final ObjectMapper objectMapper;  // Jackson ObjectMapper
+    private final ReceiptRepository receiptRepository;
 
-    @RabbitListener(queues = "getCart.Queue")
-    public ShoppingCart getCartById(@Payload String profileId) {
-        rabbitTemplate.convertAndSend("exchange.direct", "getCart.Route", profileId);
-        Message message = new Message(profileId.getBytes());
-        Message responseMessage = rabbitTemplate.sendAndReceive("exchange.direct", "getCart.Route", message);
-
-        if (responseMessage != null) {
-            byte[] body = responseMessage.getBody();
-            return convertToShoppingCart(body);
-        } else {
-            throw new RuntimeException("Failed to retrieve shopping cart for profileId: " + profileId);
+    @Transactional
+    public Receipt checkout(String userId) {
+        ShoppingCart cart = getCartById(userId);
+        if (cart != null) {
+            Receipt receipt = new Receipt();
+            receipt.setUserId(userId);
+            receipt.setItems(cart.getItems());
+            receipt.setTotalPrice(cart.getTotalPrice());
+            Double balance = getBalance(userId);
+            if(!(balance > cart.getTotalPrice())) {
+                throw new RuntimeException("Yetersiz bakiye");
+            }
+            rabbitTemplate.convertAndSend("exchange.direct", "updateBalance.Route", userId+"*"+cart.getTotalPrice());
+            receiptRepository.save(receipt);
+            // sepeti sil
+            rabbitTemplate.convertAndSend("exchange.direct", "deleteCart.Route", cart);
+            return receipt;
         }
+        return null;
     }
 
-    private ShoppingCart convertToShoppingCart(byte[] body) {
-        try {
-            String json = new String(body, StandardCharsets.UTF_8);
-            System.out.println("JSON: " + json); // Log the JSON for debugging
-            return objectMapper.readValue(json, ShoppingCart.class);
-        } catch (Exception e) {
-            System.err.println("Error converting message body to ShoppingCart: " + e.getMessage());
-            throw new RuntimeException("Error converting message body to ShoppingCart", e);
-        }
+    public ShoppingCart getCartById(String profileId) {
+        return (ShoppingCart) rabbitTemplate.convertSendAndReceive("exchange.direct", "getCart.Route", profileId);
+
+    }
+
+    public Double getBalance(String profileId) {
+        return (Double) rabbitTemplate.convertSendAndReceive("exchange.direct", "getBalance.Route", profileId);
     }
 }

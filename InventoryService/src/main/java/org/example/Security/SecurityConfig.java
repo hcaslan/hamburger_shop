@@ -26,7 +26,7 @@ public class SecurityConfig {
                                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
                                 .requestMatchers(ROOT+URUN+SAVE,ROOT+URUN+UPDATE,ROOT+URUN+DELETE+"/**").hasRole("ADMIN")
                                 .requestMatchers(ROOT+URUN+FINDALL,ROOT+URUN+FINDBYID+"/**").hasAnyRole("USER","ADMIN")
-                                .requestMatchers(ROOT+CART+GETCARTBYUSERID,ROOT+CART+ADDITEMTOCART,ROOT+CART+REMOVEITEMFROMCART,ROOT+CART+CLEARCART).hasAnyRole("USER","ADMIN")
+                                .requestMatchers(ROOT+CART+GETCARTBYUSERID,ROOT+CART+ADDITEMTOCART,ROOT+CART+REMOVEITEMFROMCART,ROOT+CART+CLEARCART,ROOT+CART+CHECKOUT).hasAnyRole("USER","ADMIN")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sessionManagement -> {

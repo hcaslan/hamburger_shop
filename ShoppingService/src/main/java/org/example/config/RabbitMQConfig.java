@@ -19,8 +19,28 @@ public class RabbitMQConfig {
         return new Queue("getCart.Queue");
     }
     @Bean
+    Queue getBalanceQueue() {
+        return new Queue("getBalance.Queue");
+    }
+    @Bean
+    Queue deleteCartQueue() {
+        return new Queue("deleteCart.Queue");
+    }
+    @Bean
+    Queue updateBalanceQueue() {
+        return new Queue("updateBalance.Queue");
+    }
+    @Bean
     DirectExchange exchange() {
         return new DirectExchange("exchange.direct");
+    }
+
+    @Bean
+    Binding deleteCartBinding(Queue deleteCartQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(deleteCartQueue)
+                .to(exchange)
+                .with("deleteCart.Route");
     }
 
     @Bean
@@ -30,15 +50,29 @@ public class RabbitMQConfig {
                 .to(exchange)
                 .with("getCart.Route");
     }
-//    @Bean
-//    MessageConverter messageConverter() {
-//        return new Jackson2JsonMessageConverter();
-//    }
-//
-//    @Bean
-//    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-//        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-//        rabbitTemplate.setMessageConverter(messageConverter());
-//        return rabbitTemplate;
-//    }
+    @Bean
+    Binding getBalanceBinding(Queue getBalanceQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(getBalanceQueue)
+                .to(exchange)
+                .with("getBalance.Route");
+    }
+    @Bean
+    Binding updateBalanceBinding(Queue updateBalanceQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(updateBalanceQueue)
+                .to(exchange)
+                .with("updateBalance.Route");
+    }
+    @Bean
+    MessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
+    }
 }

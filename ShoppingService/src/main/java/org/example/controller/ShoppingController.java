@@ -1,13 +1,13 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.ShoppingCart;
+import org.example.entity.Receipt;
+import org.example.entity.ShoppingCart;
 import org.example.service.ShoppingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static org.example.constant.EndPoints.*;
 
 @RestController
 @RequestMapping
@@ -17,5 +17,12 @@ public class ShoppingController {
     @GetMapping("/getcartbyid")
     public ResponseEntity<ShoppingCart> getCartById(@RequestParam String profileId) {
         return ResponseEntity.ok(shoppingService.getCartById(profileId));
+    }
+
+        @PostMapping(CHECKOUT)
+    //@PreAuthorize("hasRole('USER')")
+    //@Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Receipt> checkout(@RequestParam String userId) {
+        return ResponseEntity.ok(shoppingService.checkout(userId));
     }
 }

@@ -2,17 +2,11 @@ package org.example.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.entity.Urun;
-import org.example.entity.UrunSecenekler;
+import org.example.entity.*;
 import org.example.repository.UrunRepository;
-import org.example.entity.CartItem;
-import org.example.entity.ShoppingCart;
 import org.example.repository.ShoppingCartRepository;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -63,15 +57,20 @@ public class ShoppingCartService {
                 cart.setUserId(userId);
             }
             cart.getItems().add(item);
+            cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
             return shoppingCartRepository.save(cart);
         }
         return null;
     }
 
-    public ShoppingCart removeItemFromCart(String userId, String productId) {
+
+    public ShoppingCart removeItemFromCart(String userId, String id) {
         ShoppingCart cart = shoppingCartRepository.findByUserId(userId);
         if (cart != null) {
-            cart.getItems().removeIf(item -> item.getProductId().equals(productId));
+            CartItem first = cart.getItems().stream().filter(item -> item.getId().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("Urun bulunamadi"));
+            cart.getItems().removeIf(item -> item.getId().equals(id));
+            double v = cart.getTotalPrice() - first.getFiyat();
+            cart.setTotalPrice(v);
             return shoppingCartRepository.save(cart);
         }
         return null;
@@ -85,30 +84,15 @@ public class ShoppingCartService {
         }
         return null;
     }
+
     @RabbitListener(queues = "getCart.Queue")
-    public void getCart(@Payload String profileId) {
-        // Fetch the shopping cart
-        ShoppingCart cart = shoppingCartRepository.findByUserId(profileId);
-
-        if (cart != null) {
-            try {
-                // Convert the cart object to JSON bytes
-                byte[] cartBytes = objectMapper.writeValueAsBytes(cart);
-
-                // Create a message with the cartBytes as payload
-                MessageProperties messageProperties = new MessageProperties();
-                messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
-                Message message = new Message(cartBytes, messageProperties);
-
-                // Send the message back to the requester
-                // Assuming you have a specific exchange and routing key to send back the response
-                rabbitTemplate.convertAndSend("exchange.direct", "response.routing.key", message);
-
-            } catch (Exception e) {
-                throw new RuntimeException("Error converting ShoppingCart to bytes", e);
-            }
-        } else {
-            throw new RuntimeException("No shopping cart found for profileId: " + profileId);
-        }
+    public ShoppingCart handleRequest(String id) {
+        return shoppingCartRepository.findByUserId(id);
     }
+
+    @RabbitListener(queues = "deleteCart.Queue")
+    public void deleteCart(ShoppingCart cart) {
+        shoppingCartRepository.delete(cart);
+    }
+
 }

@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ShoppingCart {
+    @MongoId
     private String id;
     private String userId;
     private List<CartItem> items = new ArrayList<>();
+    @Builder.Default
+    private double totalPrice =0;
 }
 
