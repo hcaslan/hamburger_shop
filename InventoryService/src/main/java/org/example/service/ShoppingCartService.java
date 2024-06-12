@@ -3,6 +3,8 @@ package org.example.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.*;
+import org.example.exceptions.ErrorType;
+import org.example.exceptions.InventoryMicroServiceException;
 import org.example.repository.UrunRepository;
 import org.example.repository.ShoppingCartRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -16,78 +18,72 @@ import java.util.Optional;
 public class ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final UrunRepository productRepository;
-    private final ObjectMapper objectMapper;
-    private final RabbitTemplate rabbitTemplate;
 
-    public ShoppingCart getCartByUserId(String userId) {
-        return shoppingCartRepository.findByUserId(userId);
+    public ShoppingCart getCartByUserId(String profileId) {
+        return shoppingCartRepository.findByProfileId(profileId).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
     }
 
-    public ShoppingCart addItemToCart(String userId, CartItem item) {
+    public ShoppingCart addItemToCart(String profileId, CartItem item) {
         System.out.println("additemCart içinde");
         // Ürünün detaylarını al
-        Optional<Urun> productOpt = productRepository.findById(item.getProductId());
-        if (productOpt.isPresent()) {
-            Urun product = productOpt.get();
+        Urun product = productRepository.findById(item.getUrunId()).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.URUN_NOT_FOUND));
 
-            // Ürünün temel fiyatını al
-            double basePrice = product.getFiyat();
+        // Ürünün temel fiyatını al
+        double basePrice = product.getFiyat();
 
-            System.out.println("Ekstraların fiyatlarını hesapla");
-            double extraPrice = 0.0;
-            if (item.getSelectedOptions() != null) {
-                for (String option : item.getSelectedOptions()) {
-                    UrunSecenekler secenek = product.getSecenekler().stream()
-                            .filter(s -> s.getAd().equals(option))
-                            .findFirst()
-                            .orElse(null);
-                    if (secenek != null) {
-                        extraPrice += secenek.getEkstraFiyat();
-                    }
+        System.out.println("Ekstraların fiyatlarını hesapla");
+        double extraPrice = 0.0;
+        if (item.getSelectedOptions() != null) {
+            for (String option : item.getSelectedOptions()) {
+                UrunSecenekler secenek = product.getSecenekler().stream()
+                        .filter(s -> s.getAd().equals(option))
+                        .findFirst()
+                        .orElse(null);
+                if (secenek != null) {
+                    extraPrice += secenek.getEkstraFiyat();
                 }
             }
-            System.out.println("Toplam fiyatı hesapla");
-            double totalPrice = basePrice + extraPrice;
-            item.setFiyat(totalPrice);
-
-            System.out.println("Sepete ekle");
-            ShoppingCart cart = shoppingCartRepository.findByUserId(userId);
-            if (cart == null) {
-                cart = new ShoppingCart();
-                cart.setUserId(userId);
-            }
-            cart.getItems().add(item);
-            cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
-            return shoppingCartRepository.save(cart);
         }
-        return null;
+        System.out.println("Toplam fiyatı hesapla");
+        double totalPrice = basePrice + extraPrice;
+        item.setFiyat(totalPrice);
+
+        System.out.println("Sepete ekle");
+        ShoppingCart cart = shoppingCartRepository.findByProfileId(profileId).orElse(null);
+        if (cart == null) {
+            cart = new ShoppingCart();
+            cart.setProfileId(profileId);
+        }
+        cart.getItems().add(item);
+        cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
+        return shoppingCartRepository.save(cart);
     }
 
 
-    public ShoppingCart removeItemFromCart(String userId, String id) {
-        ShoppingCart cart = shoppingCartRepository.findByUserId(userId);
+    public ShoppingCart removeItemFromCart(String profileId, String id) {
+        ShoppingCart cart = shoppingCartRepository.findByProfileId(profileId).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
         if (cart != null) {
-            CartItem first = cart.getItems().stream().filter(item -> item.getId().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("Urun bulunamadi"));
+            CartItem first = cart.getItems().stream().filter(item -> item.getId().equals(id)).findFirst().orElseThrow(() -> new InventoryMicroServiceException(ErrorType.URUN_NOT_FOUND));
             cart.getItems().removeIf(item -> item.getId().equals(id));
             double v = cart.getTotalPrice() - first.getFiyat();
             cart.setTotalPrice(v);
             return shoppingCartRepository.save(cart);
         }
-        return null;
+        throw new InventoryMicroServiceException(ErrorType.CART_IS_EMPTY);
     }
 
-    public ShoppingCart clearCart(String userId) {
-        ShoppingCart cart = shoppingCartRepository.findByUserId(userId);
+    public ShoppingCart clearCart(String profileId) {
+        ShoppingCart cart = shoppingCartRepository.findByProfileId(profileId).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
         if (cart != null) {
             cart.getItems().clear();
             return shoppingCartRepository.save(cart);
         }
-        return null;
+        throw new InventoryMicroServiceException(ErrorType.CART_IS_EMPTY);
     }
 
     @RabbitListener(queues = "getCart.Queue")
     public ShoppingCart handleRequest(String id) {
-        return shoppingCartRepository.findByUserId(id);
+        return shoppingCartRepository.findByProfileId(id).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
     }
 
     @RabbitListener(queues = "deleteCart.Queue")

@@ -141,6 +141,9 @@ public class AuthService implements UserDetailsService {
     public String softDelete(String id) {
         Auth auth = authRepository.findById(id)
                 .orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
+        return delete(auth);
+    }
+    private String delete(Auth auth) {
         if (!auth.getStatus().equals(EStatus.DELETED)) {
             auth.setStatus(EStatus.DELETED);
             authRepository.save(auth);
@@ -151,7 +154,7 @@ public class AuthService implements UserDetailsService {
             } catch (Exception e){
                 throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
             }
-            return "User with id " + id + " has been deleted";
+            return "User with id " + auth.getId() + " has been deleted";
         } else {
             throw new AuthMicroServiceException(ErrorType.USER_ALREADY_DELETED);
         }
@@ -162,19 +165,7 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
         if (!auth.getPassword().equals(password))
             throw new AuthMicroServiceException(ErrorType.WRONG_PASSWORD);
-        if (!auth.getStatus().equals(EStatus.DELETED)) {
-            auth.setStatus(EStatus.DELETED);
-            authRepository.save(auth);
-            try {
-                StatusUpdateModel statusUpdateModel = StatusUpdateModel.builder().authId(auth.getId()).status(EStatus.DELETED).build();
-
-                rabbitTemplate.convertAndSend("exchange.direct","updateStatus.Route",statusUpdateModel);
-            } catch (Exception e){
-                throw new AuthMicroServiceException(ErrorType.BAD_REQUEST);
-            }
-        } else {
-            throw new AuthMicroServiceException(ErrorType.USER_ALREADY_DELETED);
-        }
+        delete(auth);
     }
 
     public List<AuthResponseDto> findAllDto() {

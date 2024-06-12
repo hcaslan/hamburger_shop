@@ -25,7 +25,9 @@ public enum ErrorType
   USER_ALREADY_DELETED(5015,"Kullanıcı zaten silinmiş", HttpStatus.BAD_REQUEST),
   ID_NOT_FOUND(5016,"Id bulunamadı", HttpStatus.NOT_FOUND),
   INVALID_ACTIVATION_CODE(5017,"Geçersiz aktivasyon kodu", HttpStatus.BAD_REQUEST),
-  TOKEN_ALREADY_USED(5018,"Token zaten kullanılmış", HttpStatus.BAD_REQUEST);
+  TOKEN_ALREADY_USED(5018,"Token zaten kullanılmış", HttpStatus.BAD_REQUEST),
+  URUN_NOT_FOUND(5019,"Urün bulunamadı." ,HttpStatus.BAD_REQUEST ),
+  CART_IS_EMPTY(5020,"Sepet bos" ,  HttpStatus.BAD_REQUEST ), CART_NOT_FOUND(5021,"Sepet bulunamadı" , HttpStatus.BAD_REQUEST );
 
 
   private Integer code;

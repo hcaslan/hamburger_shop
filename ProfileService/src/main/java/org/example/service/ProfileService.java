@@ -45,7 +45,7 @@ public class ProfileService {
         String[] parts = updateText.split("\\*"); // Split the text by the '*' delimiter
         String userId = parts[0]; // The first part is the userId
         String totalPrice = parts[1]; // The second part is the total price
-        // You can also convert totalPrice to a numeric type if needed
+        // Convert totalPrice to a numeric type if needed
         double totalPriceValue = Double.parseDouble(totalPrice);
 
         Profile profile = profileRepository.findById(userId).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.USER_NOT_FOUND));
