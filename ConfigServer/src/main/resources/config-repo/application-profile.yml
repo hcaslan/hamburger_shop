@@ -4,12 +4,12 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: java14user
-    password: root
+    username: user
+    password: password
   data:
     mongodb:
       host: localhost
-      port: 27027
+      port: 27017
       database: HamburgerShopDB
       username: bilge
       password: bilge!123

@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
-    @ExceptionHandler(InverntoryServiceException.class)
-    public ResponseEntity<ErrorMessage> handleDemoException(InverntoryServiceException ex){
+    @ExceptionHandler(AuthMicroServiceException.class)
+    public ResponseEntity<ErrorMessage> handleDemoException(AuthMicroServiceException ex){
         ErrorType errorType = ex.getErrorType();
         return new ResponseEntity(createErrorMessage(ex),errorType.getStatus());
     }
 
-    private ErrorMessage createErrorMessage(InverntoryServiceException ex)
+    private ErrorMessage createErrorMessage(AuthMicroServiceException ex)
     {
        return ErrorMessage.builder().code(ex.getErrorType().getCode()).message(ex.getMessage()).build();
     }

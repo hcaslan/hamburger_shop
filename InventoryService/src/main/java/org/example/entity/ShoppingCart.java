@@ -4,20 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.example.constant.EIngredientType;
+import org.example.entity.CartItem;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Document(collection = "ingredients")
-public class Ingredient {
+@Document(collection = "sepetler")
+public class ShoppingCart {
     @MongoId
     private String id;
-    private String name;
-    private EIngredientType type;
-    @Builder.Default
-    private boolean isActive = true;
+    private String userId;
+    private List<CartItem> items = new ArrayList<>();
 }
+

@@ -1,50 +1,54 @@
 package org.example.Security;
 
-
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.enums.ERole;
+import lombok.RequiredArgsConstructor;
+import org.example.exceptions.AuthMicroServiceException;
 import org.example.exceptions.ErrorType;
-import org.example.exceptions.InverntoryServiceException;
 import org.example.utility.JwtTokenManager;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
-
+    @Value("${authservice.secret.secret-key}")
+    String secretKey;
     private final JwtTokenManager jwtTokenManager;
-
-
-    public JwtTokenFilter(JwtTokenManager jwtTokenManager) {
-        this.jwtTokenManager = jwtTokenManager;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //requestte gelen bearer tokenı yakalama
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null) {
-            //çıktıya bakarak tokenın başındaki "Bearer " kısmını atmayı unutma:
-            String token = bearerToken.substring(7);
-            ERole role = jwtTokenManager.getRoleFromToken(token).orElseThrow(() -> new InverntoryServiceException(ErrorType.INVALID_TOKEN));
-            System.out.println("Token içindeki role: " + role);
-
-            UserDetails userDetails = User.builder().username("").password("").authorities(new SimpleGrantedAuthority(role.toString())).build();
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            System.out.println(token);
+            try {
+                DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secretKey))
+                        .build()
+                        .verify(token);
+                String role = jwt.getClaim("role").asString();
+                System.out.println(role);
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singletonList(authority));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println(authority);
+            } catch (Exception e) {
+                throw new AuthMicroServiceException(ErrorType.INVALID_TOKEN);
+            }
         }
         filterChain.doFilter(request, response);
     }

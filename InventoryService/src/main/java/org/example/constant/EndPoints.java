@@ -10,21 +10,16 @@ public class EndPoints {
     public static final String ROOT = API + VERSION;
 
     //entityler:
-    public static final String INGREDIENT = "/ingredient";
-    public static final String INVENTORY = "/inventory";
-    public static final String SAUCE = "/sauce";
-    public static final String SNACK = "/snack";
-    public static final String DESSERT = "/dessert";
-    public static final String DRINK = "/drink";
-    public static final String HAMBURGER = "/hamburger";
+    public static final String URUN = "/urun";
+    public static final String CART = "/cart";
+
 
     //Methods:
+
     public static final String SAVE = "/save";
     public static final String UPDATE = "/update";
     public static final String DELETE = "/delete";
     public static final String FINDALL = "/findall";
     public static final String FINDBYID = "/findbyid";
-    public static final String REGISTER = "/register";
-    public static final String LOGIN = "/login";
 
 }

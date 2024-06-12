@@ -9,8 +9,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.example.constant.EndPoints.*;
-
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -24,11 +22,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
-                                .requestMatchers(INVENTORY+SAVE+INGREDIENT, INVENTORY+SAVE+SAUCE, INVENTORY+SAVE+SNACK, INVENTORY+SAVE+DESSERT, INVENTORY+SAVE+DRINK, INVENTORY+SAVE+HAMBURGER).hasAuthority("ADMIN")
+                                .requestMatchers(URUN+"/**").hasRole("ADMIN")
+                                .requestMatchers(URUN+FINDALL,URUN+FINDBYID).hasRole("USER")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable());
         return httpSecurity.build();
     }
+
 }
 
