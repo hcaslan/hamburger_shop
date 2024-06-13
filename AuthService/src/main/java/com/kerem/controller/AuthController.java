@@ -22,7 +22,7 @@ import java.util.List;
 import static com.kerem.constant.EndPoints.*;
 
 @RestController
-@RequestMapping(AUTH)
+@RequestMapping(ROOT+AUTH)
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
@@ -42,7 +42,7 @@ public class AuthController {
         return ResponseEntity.ok("Account activated successfully");
     }
 
-    @PostMapping(LOGIN)
+    @GetMapping(LOGIN)
     public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password){
         return ResponseEntity.ok(authService.login(email, password));
     }
