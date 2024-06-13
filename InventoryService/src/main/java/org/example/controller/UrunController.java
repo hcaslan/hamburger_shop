@@ -3,6 +3,7 @@ package org.example.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.request.UrunSaveRequest;
 import org.example.entity.Urun;
 import org.example.service.UrunService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +27,14 @@ public class UrunController {
     @PostMapping(SAVE)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
-    public Urun createUrun(@RequestBody Urun urun) {
+    public Urun createUrun(@RequestBody UrunSaveRequest request) {
+        Urun urun = Urun.builder()
+                .ad(request.getAd())
+                .tur(request.getTur())
+                .fiyat(request.getFiyat())
+                .ozellikler(request.getOzellikler())
+                .secenekler(request.getSecenekler())
+                .build();
         return urunService.saveUrun(urun);
     }
 

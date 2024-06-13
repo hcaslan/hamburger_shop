@@ -1,5 +1,4 @@
-package org.example.entity;
-
+package org.example.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,21 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
-
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class CartItem {
-
-    @Builder.Default
-    private String id = UUID.randomUUID().toString();
+public class CartItemAddRequest {
     private String urunId;
-    private String ad;
-    private Double fiyat;
     private List<String> extraOptions;
     private List<String> selectedOptions;
     private List<String> removedIngredients;

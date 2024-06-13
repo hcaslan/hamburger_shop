@@ -8,8 +8,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.constant.Session;
 import org.example.exceptions.InventoryMicroServiceException;
 import org.example.exceptions.ErrorType;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +27,7 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
+    private final RabbitTemplate rabbitTemplate;
     @Value("${authservice.secret.secret-key}")
     String secretKey;
 
@@ -38,6 +41,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         .build()
                         .verify(token);
                 String role = "ROLE_" + jwt.getClaim("role").asString();
+                String authId = jwt.getClaim("id").asString();
+                String profileId = (String) rabbitTemplate.convertSendAndReceive("exchange.direct","getProfileId.Route", authId);
+                Session.setSession(token, authId,profileId);
+                System.out.println("profileId: " + profileId);
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singletonList(authority));
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

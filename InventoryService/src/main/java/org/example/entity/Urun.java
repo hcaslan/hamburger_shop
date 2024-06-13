@@ -21,6 +21,6 @@ public class Urun {
     private String ad;
     private String tur;
     private Double fiyat;
-    private Map<String, Object> ozellikler; // dinamik
+    private Map<String, List<UrunOzellikler>> ozellikler; // dinamik
     private List<UrunSecenekler> secenekler;
 }

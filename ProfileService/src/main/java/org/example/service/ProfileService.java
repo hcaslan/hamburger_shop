@@ -1,6 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Address;
 import org.example.entity.Profile;
 import org.example.exceptions.ErrorType;
 import org.example.exceptions.ProfileMicroServiceException;
@@ -8,6 +9,8 @@ import org.example.model.StatusUpdateModel;
 import org.example.repository.ProfileRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +38,9 @@ public class ProfileService {
         profileRepository.save(profile);
     }
 
-    public void updateBalance(Double balance, String profileId) {
+    public void addBalance(Double balance, String profileId) {
         Profile profile = profileRepository.findById(profileId).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.USER_NOT_FOUND));
-        profile.setBalance(balance);
+        profile.setBalance(profile.getBalance()+balance);
         profileRepository.save(profile);
     }
     @RabbitListener(queues = "updateBalance.Queue")
@@ -57,5 +60,15 @@ public class ProfileService {
     public Double getBalance(String profileId) {
         Profile profile = profileRepository.findById(profileId).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.USER_NOT_FOUND));
         return profile.getBalance();
+    }
+
+    @RabbitListener(queues = "getProfileId.Queue")
+    public String getProfileId(String authId) {
+        Profile profile = profileRepository.findByAuthId(authId).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.USER_NOT_FOUND));
+        return profile.getId();
+    }
+
+    public List<Profile> findAll() {
+        return profileRepository.findAll();
     }
 }

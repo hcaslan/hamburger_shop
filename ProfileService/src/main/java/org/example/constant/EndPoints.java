@@ -21,5 +21,8 @@ public class EndPoints {
     public static final String FINDBYID = "/findbyid";
     public static final String REGISTER = "/register";
     public static final String LOGIN = "/login";
+    public static final String ADDBALANCE = "/addbalance";
+    public static final String GETBALANCE = "/getbalance";
+    public static final String UPDATEBALANCE = "/updatebalance";
 
 }

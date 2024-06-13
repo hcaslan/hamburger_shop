@@ -18,13 +18,22 @@ public class RabbitMQConfig {
     Queue getCartQueue() {
         return new Queue("getCart.Queue");
     }
+    @Bean
     Queue deleteCartQueue() {
         return new Queue("deleteCart.Queue");
     }
     @Bean
+    Queue getProfileIdQueue() {
+        return new Queue("getProfileId.Queue");
+    }
+
+
+    @Bean
     DirectExchange exchange() {
         return new DirectExchange("exchange.direct");
     }
+
+
 
     @Bean
     Binding deleteCartBinding(Queue deleteCartQueue, DirectExchange exchange) {
@@ -32,12 +41,20 @@ public class RabbitMQConfig {
                 .bind(deleteCartQueue)
                 .to(exchange)
                 .with("delete.cart.key");
-    }@Bean
+    }
+    @Bean
     Binding getCartBinding(Queue getCartQueue, DirectExchange exchange) {
         return BindingBuilder
                 .bind(getCartQueue)
                 .to(exchange)
                 .with("response.routing.key");
+    }
+    @Bean
+    Binding getProfileIdBinding(Queue getProfileIdQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(getProfileIdQueue)
+                .to(exchange)
+                .with("getProfileId.Route");
     }
     @Bean
     MessageConverter messageConverter() {

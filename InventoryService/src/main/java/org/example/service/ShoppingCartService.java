@@ -47,6 +47,7 @@ public class ShoppingCartService {
         System.out.println("Toplam fiyatı hesapla");
         double totalPrice = basePrice + extraPrice;
         item.setFiyat(totalPrice);
+        item.setAd(product.getAd());
 
         System.out.println("Sepete ekle");
         ShoppingCart cart = shoppingCartRepository.findByProfileId(profileId).orElse(null);
