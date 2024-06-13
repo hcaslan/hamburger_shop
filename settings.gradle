@@ -5,4 +5,5 @@ include 'EmailService'
 include 'ProfileService'
 include 'InventoryService'
 include 'ShoppingService'
+include 'ApiGatewayService'
 

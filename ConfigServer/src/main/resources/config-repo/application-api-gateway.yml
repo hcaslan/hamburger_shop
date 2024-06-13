@@ -1,0 +1,88 @@
+server:
+  port: 80
+
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      default-filters:
+        # Dışarıdan gatewaye yapılacak istek:  http://localhost/auth/register
+        # (?<segment>.*) -> auth/register
+        # /$\{segment} -> http://localhost:9090/api/v1/auth/register
+        # RewritePath: yeni yolumuzu tekrar yazmada yardımcı oluyor.
+        - RewritePath=/(?<segment>.*), /api/v1/$\{segment}
+      routes:
+        - id: auth-service
+          uri: http://localhost:9091 #hedef adres
+          predicates:
+            - Path=/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/fallback/auth
+        - id: auth-service-swagger
+          uri: http://localhost:9091
+          predicates:
+            - Path=/auth/swagger-ui.html
+            - Path=/auth/webjars/**
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /$\{segment}
+        - id: profile-profile-service
+          uri: http://localhost:9093 #hedef adres
+          predicates:
+            - Path=/profile/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: profileCircuitBreaker
+                fallbackUri: forward:/fallback/profile
+        - id: profile-address-service
+          uri: http://localhost:9093 #hedef adres
+          predicates:
+            - Path=/address/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: addressCircuitBreaker
+                fallbackUri: forward:/fallback/address
+        - id: shopping-service
+          uri: http://localhost:9095 #hedef adres
+          predicates:
+            - Path=/shopping/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: shoppingCircuitBreaker
+                fallbackUri: forward:/fallback/shopping
+        - id: inventory-urun-service
+          uri: http://localhost:9094 # hedef adres
+          predicates:
+            - Path=/urun/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: urunCircuitBreaker
+                fallbackUri: forward:/fallback/urun
+        - id: inventory-cart-service
+          uri: http://localhost:9094 # hedef adres
+          predicates:
+            - Path=/cart/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: cartCircuitBreaker
+                fallbackUri: forward:/fallback/cart
+        - id: email-service
+          uri: http://localhost:9092 # hedef adres
+          predicates:
+            - Path=/email/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: emailCircuitBreaker
+                fallbackUri: forward:/fallback/email
+
+
