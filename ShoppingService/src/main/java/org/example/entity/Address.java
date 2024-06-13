@@ -4,24 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.example.constant.EAddressType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Document(collection = "receipt")
-public class Receipt {
+@Document(collection = "addresses")
+public class Address {
     @MongoId
     private String id;
-    private String userId;
-    private String cartId;
-    private String date;
-    private List<CartItem> items = new ArrayList<>();
-    private double totalPrice;
-    private Address address;
+    private String profileId;
+    private String addressLine;
+    private String city;
+    private String state;
+    private EAddressType addressType;
 }

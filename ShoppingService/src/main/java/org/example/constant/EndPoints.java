@@ -12,6 +12,7 @@ public class EndPoints {
     //entityler:
     public static final String URUN = "/urun";
     public static final String CART = "/cart";
+    public static final String SHOPPING = "/shopping";
 
 
     //Methods:
@@ -26,5 +27,6 @@ public class EndPoints {
     public static final String REMOVEITEMFROMCART = "/removeitemfromcart";
     public static final String CLEARCART = "/clearcart";
     public static final String CHECKOUT = "/checkout";
+    public static final String GETCARTBYID = "/getcartbyid";
 
 }

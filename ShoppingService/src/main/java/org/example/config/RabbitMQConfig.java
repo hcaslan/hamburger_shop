@@ -30,6 +30,12 @@ public class RabbitMQConfig {
     Queue updateBalanceQueue() {
         return new Queue("updateBalance.Queue");
     }
+
+    @Bean
+    Queue getAddressQueue() {
+        return new Queue("getAddress.Queue");
+    }
+
     @Bean
     DirectExchange exchange() {
         return new DirectExchange("exchange.direct");
@@ -64,6 +70,15 @@ public class RabbitMQConfig {
                 .to(exchange)
                 .with("updateBalance.Route");
     }
+
+    @Bean
+    Binding getAddressBinding(Queue getAddressQueue, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(getAddressQueue)
+                .to(exchange)
+                .with("getAddress.Route");
+    }
+
     @Bean
     MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();

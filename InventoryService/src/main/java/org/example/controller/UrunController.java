@@ -39,14 +39,14 @@ public class UrunController {
     }
 
     @GetMapping(FINDALL)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public List<Urun> getAllUrunler() {
         return urunService.getAllUrunler();
     }
 
     @GetMapping(FINDBYID)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public Urun getUrunById(@RequestParam String id) {
         return urunService.getUrunById(id);

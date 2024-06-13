@@ -9,7 +9,10 @@ import org.example.exceptions.ErrorType;
 import org.example.exceptions.ProfileMicroServiceException;
 import org.example.mapper.AddressMapper;
 import org.example.repository.AddressRepository;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,9 +26,9 @@ public class AddressService {
     public void saveAddress(AddressSaveRequestDto dto) {
         Address address = addressRepository.save(addressMapper.toEntity(dto));
         Profile profile = profileService.findByProfileId(dto.getProfileId());
-        List<Address> addresses = profile.getAddresses();
-        addresses.add(address);
-        profile.setAddresses(addresses);
+        List<String> addressIds = profile.getAddressIds();
+        addressIds.add(address.getId());
+        profile.setAddressIds(addressIds);
         profileService.updateProfile(profile);
     }
 
@@ -41,15 +44,21 @@ public class AddressService {
     public void deleteAddress(String addressId, String profileId) {
 
         Profile profile = profileService.findByProfileId(profileId);
-        List<Address> addresses = profile.getAddresses();
-        addresses.removeIf(address -> address.getId().equals(addressId));
-        profile.setAddresses(addresses);
+        List<String> addressIds = profile.getAddressIds();
+        addressIds.removeIf(id -> id.equals(addressId));
+        profile.setAddressIds(addressIds);
         profileService.updateProfile(profile);
 
         addressRepository.deleteById(addressId);
     }
 
-    public List<Address> findAll(String profileId) {
+    public List<Address> findAllById(String profileId) {
         return addressRepository.findAllByProfileId(profileId);
+    }
+
+    @RabbitListener(queues = "getAddress.Queue")
+    @Transactional
+    public Address findById(String addressId) {
+        return addressRepository.findById(addressId).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.ADDRESS_NOT_FOUND));
     }
 }

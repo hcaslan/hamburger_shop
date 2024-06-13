@@ -22,7 +22,7 @@ public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
 
     @PostMapping(ADDITEMTOCART)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public ShoppingCart addItemToCart(@RequestParam String urunId,
                                       @RequestParam(required = false) List<String> extraOptions,
@@ -38,21 +38,21 @@ public class ShoppingCartController {
     }
 
     @GetMapping(GETCARTBYUSERID)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public ShoppingCart getCart() {
         return shoppingCartService.getCartByUserId(Session.getProfileId());
     }
 
     @DeleteMapping(REMOVEITEMFROMCART)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public ShoppingCart removeItemFromCart(@RequestParam String productId) {
         return shoppingCartService.removeItemFromCart(Session.getProfileId(), productId);
     }
 
     @PostMapping(CLEARCART)
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     public ShoppingCart clearCart() {
         return shoppingCartService.clearCart(Session.getProfileId());

@@ -10,6 +10,7 @@ import org.example.repository.ShoppingCartRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -83,11 +84,13 @@ public class ShoppingCartService {
     }
 
     @RabbitListener(queues = "getCart.Queue")
+    @Transactional
     public ShoppingCart handleRequest(String id) {
         return shoppingCartRepository.findByProfileId(id).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
     }
 
     @RabbitListener(queues = "deleteCart.Queue")
+    @Transactional
     public void deleteCart(ShoppingCart cart) {
         shoppingCartRepository.delete(cart);
     }

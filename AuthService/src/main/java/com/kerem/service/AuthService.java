@@ -40,6 +40,7 @@ public class AuthService implements UserDetailsService {
         return authRepository.findById(id).orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
     }
 
+    @Transactional
     public void register(AuthRegisterRequestDto dto) {
         Auth auth = AuthMapper.INSTANCE.dtoToEntity(dto);
         if (!dto.getPassword().equals(dto.getRePassword()))
@@ -63,6 +64,7 @@ public class AuthService implements UserDetailsService {
         System.out.println("Activation code: " + token.getCode());
     }
 
+    @Transactional
     public void activateAccount(String activationCode) {
         Token token = tokenRepository.findByCode(activationCode).orElseThrow(() -> new AuthMicroServiceException(ErrorType.INVALID_ACTIVATION_CODE));
         if (token.getUsedAt() != null)
@@ -143,6 +145,7 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));
         return delete(auth);
     }
+
     private String delete(Auth auth) {
         if (!auth.getStatus().equals(EStatus.DELETED)) {
             auth.setStatus(EStatus.DELETED);
@@ -160,6 +163,7 @@ public class AuthService implements UserDetailsService {
         }
     }
 
+    @Transactional
     public void softDeleteMyAccount(String email, String password) {
         Auth auth = authRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthMicroServiceException(ErrorType.USER_NOT_FOUND));

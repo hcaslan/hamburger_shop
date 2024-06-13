@@ -23,7 +23,7 @@ public class Profile {
     @Builder.Default
     private double balance = 0.0;
     @Builder.Default
-    private List<Address> addresses = new ArrayList<>();
+    private List<String> addressIds = new ArrayList<>();
     @Builder.Default
     EStatus status = EStatus.PENDING;
 }
