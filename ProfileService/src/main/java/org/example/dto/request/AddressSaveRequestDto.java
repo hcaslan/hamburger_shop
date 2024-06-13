@@ -11,7 +11,6 @@ import org.example.constant.EAddressType;
 @Builder
 @Data
 public class AddressSaveRequestDto {
-    private String profileId;
     private String addressLine;
     private String city;
     private String state;

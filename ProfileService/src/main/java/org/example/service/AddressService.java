@@ -23,17 +23,20 @@ public class AddressService {
     private final ProfileService profileService;
     private final AddressMapper addressMapper;
 
-    public void saveAddress(AddressSaveRequestDto dto) {
+    public void saveAddress(AddressSaveRequestDto dto, String profileId) {
         Address address = addressRepository.save(addressMapper.toEntity(dto));
-        Profile profile = profileService.findByProfileId(dto.getProfileId());
+        Profile profile = profileService.findByProfileId(profileId);
         List<String> addressIds = profile.getAddressIds();
         addressIds.add(address.getId());
         profile.setAddressIds(addressIds);
         profileService.updateProfile(profile);
     }
 
-    public void updateAddress(AddressUpdateRequestDto dto) {
+    public void updateAddress(AddressUpdateRequestDto dto, String profileId) {
         Address address = addressRepository.findById(dto.getAddressId()).orElseThrow(()-> new ProfileMicroServiceException(ErrorType.ADDRESS_NOT_FOUND));
+        if (!address.getProfileId().equals(profileId)) {
+            throw new ProfileMicroServiceException(ErrorType.ACCESS_DENIED);
+        }
         address.setAddressLine(dto.getAddressLine());
         address.setCity(dto.getCity());
         address.setState(dto.getState());

@@ -39,6 +39,7 @@ public class ShoppingService {
         return null;
     }
 
+
     @Transactional
     public ShoppingCart getCartById(String profileId) {
         return (ShoppingCart) rabbitTemplate.convertSendAndReceive("exchange.direct", "getCart.Route", profileId);

@@ -78,10 +78,13 @@ public class ShoppingCartService {
         ShoppingCart cart = shoppingCartRepository.findByProfileId(profileId).orElseThrow(() -> new InventoryMicroServiceException(ErrorType.CART_NOT_FOUND));
         if (cart != null) {
             cart.getItems().clear();
+            cart.setTotalPrice(0.0);
             return shoppingCartRepository.save(cart);
         }
         throw new InventoryMicroServiceException(ErrorType.CART_IS_EMPTY);
     }
+
+
 
     @RabbitListener(queues = "getCart.Queue")
     @Transactional

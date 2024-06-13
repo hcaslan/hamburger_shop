@@ -26,7 +26,7 @@ public class AddressController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<String> saveAddress(@RequestBody AddressSaveRequestDto dto){
-        addressService.saveAddress(dto);
+        addressService.saveAddress(dto, Session.getProfileId());
         return ResponseEntity.ok("Address saved successfully");
     }
 
@@ -34,7 +34,7 @@ public class AddressController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<String> updateAddress(@RequestBody AddressUpdateRequestDto dto){
-        addressService.updateAddress(dto);
+        addressService.updateAddress(dto, Session.getProfileId());
         return ResponseEntity.ok("Address updated successfully");
     }
     @DeleteMapping(DELETE)

@@ -26,7 +26,8 @@ public enum ErrorType
   ID_NOT_FOUND(5016,"Id bulunamadı", HttpStatus.NOT_FOUND),
   INVALID_ACTIVATION_CODE(5017,"Geçersiz aktivasyon kodu", HttpStatus.BAD_REQUEST),
   TOKEN_ALREADY_USED(5018,"Token zaten kullanılmış", HttpStatus.BAD_REQUEST),
-  ADDRESS_NOT_FOUND(5019,"Adres bulunamadı", HttpStatus.BAD_REQUEST);
+  ADDRESS_NOT_FOUND(5019,"Adres bulunamadı", HttpStatus.BAD_REQUEST),
+  ACCESS_DENIED(5020,"Erişim reddedildi", HttpStatus.FORBIDDEN);
 
 
   private Integer code;
