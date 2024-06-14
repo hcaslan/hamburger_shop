@@ -21,6 +21,8 @@ public class Urun {
     private String ad;
     private String tur;
     private Double fiyat;
+    @Builder.Default
+    private Boolean isActive = true;
     private Map<String, List<UrunOzellikler>> ozellikler; // dinamik
     private List<UrunSecenekler> secenekler;
 }

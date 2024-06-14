@@ -38,6 +38,23 @@ public class UrunController {
         return urunService.saveUrun(urun);
     }
 
+    @PutMapping(UPDATE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
+    public Urun updateUrun(@RequestBody UrunSaveRequest request, @RequestParam String urunId) {
+        Urun urun = Urun.builder()
+                .id(urunId)
+                .ad(request.getAd())
+                .tur(request.getTur())
+                .fiyat(request.getFiyat())
+                .ozellikler(request.getOzellikler())
+                .secenekler(request.getSecenekler())
+                .build();
+        return urunService.update(urun);
+    }
+
+
+
     @GetMapping(FINDALL)
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
